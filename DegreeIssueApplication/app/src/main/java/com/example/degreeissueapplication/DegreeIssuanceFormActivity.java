@@ -1,11 +1,13 @@
 package com.example.degreeissueapplication;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -13,9 +15,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.degreeissueapplication.Model.DegreeIssueModel;
+import com.example.degreeissueapplication.Utils.DatabaseHandler;
+
 public class DegreeIssuanceFormActivity extends AppCompatActivity {
 
-    public static final String PASS = "SUBMITTED";
+    public static final String RETURN = "RETURN";
 
     // Declaring variables
 
@@ -71,8 +76,8 @@ public class DegreeIssuanceFormActivity extends AppCompatActivity {
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         // Get value from Intent
-        DegreeIssueApplicationForm form = (DegreeIssueApplicationForm) getIntent().getSerializableExtra("FORM");
-        if(form != null) {
+        DegreeIssueModel application = (DegreeIssueModel) getIntent().getSerializableExtra("FORM");
+        if(application != null) {
              degree.setEnabled(false);
              session.setEnabled(false);
              rollNumber.setEnabled(false);
@@ -92,33 +97,34 @@ public class DegreeIssuanceFormActivity extends AppCompatActivity {
              contact.setEnabled(false);
              btn_submit.setEnabled(false);
 
-            degree.setText(form.degree);
-            session.setText(form.session);
-            rollNumber.setText(form.rollNumber);
-            batch.setText(form.batch);
-            department.setText(form.department);
-            regNum.setText(form.regNum);
-            reason.setText(form.reason);
-            rev_from.setText(form.rev_from);
-            rev_to.setText(form.rev_to);
-            candidateName.setText(form.candidateName);
-            cnic.setText(form.cnic);
-            fatherName.setText(form.fatherName);
-            cgpa.setText(form.cgpa);
-            dob.setText(form.dob);
-            institute.setText(form.institute);
-            address.setText(form.address);
-            contact.setText(form.contact);
+            degree.setText(application.getDegree());
+            session.setText(application.getSession());
+            rollNumber.setText(application.getRollNumber());
+            batch.setText(application.getBatch());
+            department.setText(application.getDepartment());
+            regNum.setText(application.getRegNum());
+            reason.setText(application.getReason());
+            rev_from.setText(application.getRev_from());
+            rev_to.setText(application.getRev_to());
+            candidateName.setText(application.getCandidateName());
+            cnic.setText(application.getCnic());
+            fatherName.setText(application.getFatherName());
+            cgpa.setText(application.getCgpa());
+            dob.setText(application.getDob());
+            institute.setText(application.getInstitute());
+            address.setText(application.getAddress());
+            contact.setText(application.getContact());
 
         }
 
         // Submit Button Click Event
 
         btn_submit.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
 
-                DegreeIssueApplicationForm form = new DegreeIssueApplicationForm(
+                DegreeIssueModel application = new DegreeIssueModel(
                         degree.getText().toString(),
                         session.getText().toString(),
                         rollNumber.getText().toString(),
@@ -135,13 +141,15 @@ public class DegreeIssuanceFormActivity extends AppCompatActivity {
                         dob.getText().toString(),
                         institute.getText().toString(),
                         address.getText().toString(),
-                        contact.getText().toString()
+                        contact.getText().toString(),
+                        "Pending",
+                        "Not yet added",
+                        "Not yet added"
                 );
 
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra(PASS, form);
+                resultIntent.putExtra(RETURN, application);
                 setResult(Activity.RESULT_OK, resultIntent);
-                sendEmail(form);
                 finish();
             }
         });
@@ -151,27 +159,8 @@ public class DegreeIssuanceFormActivity extends AppCompatActivity {
         btn_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(Activity.RESULT_CANCELED);
                 finish();
             }
         });
-    }
-    private void sendEmail(DegreeIssueApplicationForm form)
-    {
-        String subject = "Degree Issue Application";
-        String body= form.toString(true);
-
-        String mailto = "mailto:muhammadsuleman964@gmail.com" +
-                "?cc=" +
-                "&subject=" + Uri.encode(subject) +
-                "&body=" + Uri.encode(body);
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-        emailIntent.setData(Uri.parse(mailto));
-
-        try {
-            startActivity(emailIntent);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(getApplicationContext(), "Error to open email app", Toast.LENGTH_SHORT).show();
-        }
     }
 }
